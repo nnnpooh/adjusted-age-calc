@@ -20,7 +20,6 @@ function App() {
   const [GAWeek, setGAWeek] = useState(null);
   const [GADayAdd, setGADayAdd] = useState(null);
   const [logDate, setLogDate] = useState('');
-
   function splitWeekDay(numDay) {
     let week = 0;
     let dayAdd = 0;
@@ -35,18 +34,29 @@ function App() {
     return [week, dayAdd];
   }
 
-  let AdBoD = '';
+  let AdDoB = '';
   let AJ = '';
   let CADay = '';
   let PCA = '';
   let GA = '';
-  if (GAWeek && GADayAdd) GA = GAWeek * 7 + GADayAdd;
-  if (GAWeek && GADayAdd && birthDate && logDate) {
-    AdBoD = addDays(birthDate, (40 - GAWeek) * 7 - GADayAdd);
-    CADay = differenceInDays(logDate, birthDate);
-    PCA = GAWeek * 7 + GADayAdd + CADay;
-    if (differenceInDays(AdBoD, birthDate) > 0) {
-      AJ = GAWeek * 7 + GADayAdd + CADay - 280;
+  let textWarningCA = false;
+  let textWarningAJ = false;
+  let textWarningAdDoB = false;
+  if (GAWeek === parseInt(GAWeek) && GADayAdd === parseInt(GADayAdd)) {
+    GA = GAWeek * 7 + GADayAdd;
+    if (birthDate && logDate) {
+      AdDoB = addDays(birthDate, (40 - GAWeek) * 7 - GADayAdd);
+      CADay = differenceInDays(logDate, birthDate);
+      PCA = GAWeek * 7 + GADayAdd + CADay;
+      if (differenceInDays(AdDoB, birthDate) > 0) {
+        AJ = GAWeek * 7 + GADayAdd + CADay - 280;
+      } else {
+        AJ = '';
+        textWarningAJ = true;
+        textWarningAdDoB = true;
+      }
+      if (CADay < 0) textWarningCA = true;
+      if (AJ < 0) textWarningAJ = true;
     }
   }
 
@@ -54,7 +64,7 @@ function App() {
   const onChangeLogDateCalendar = (event, data) => setLogDate(data.value);
   const onChangeGAWeek = (event, data) => {
     const value = parseInt(data.value);
-    if (value) {
+    if (value || value === 0) {
       setGAWeek(value);
     } else {
       setGAWeek(null);
@@ -63,20 +73,20 @@ function App() {
 
   const onChangeGADayAdd = (event, data) => {
     const value = parseInt(data.value);
-    if (value) {
+    if (value || value === 0) {
       setGADayAdd(value);
     } else {
       setGADayAdd(null);
     }
   };
 
-  function displayListItem(text, icon, header) {
+  function displayListItem(text, icon, header, color) {
     return (
       <List.Item>
         <Icon name={icon} />
         <List.Content>
           <List.Header>{header}</List.Header>
-          <List.Description>{text}</List.Description>
+          <List.Description style={{ color: color }}>{text}</List.Description>
         </List.Content>
       </List.Item>
     );
@@ -107,6 +117,18 @@ function App() {
       return '';
     }
   }
+
+  /*   console.log({
+    birthDate,
+    GAWeek,
+    GADayAdd,
+    logDate,
+    AdDoB,
+    AJ,
+    CADay,
+    PCA,
+    GA,
+  }); */
   return (
     <>
       <Menu fixed='top' inverted color={'purple'} widths={1}>
@@ -156,27 +178,40 @@ function App() {
             {displayListItem(
               formatTextDate(birthDate),
               'birthday cake',
-              'Date of Birth'
+              'Date of Birth',
+              'black'
             )}
 
             {displayListItem(
-              formatTextDate(AdBoD),
+              formatTextDate(AdDoB),
               'birthday cake',
-              'Adjusted Date of Birth'
+              'Adjusted Date of Birth',
+              textWarningAdDoB ? 'red' : 'black'
             )}
             {displayListItem(
               formatTextDay(CADay),
               'clock',
-              'Chronological Age, CA '
+              'Chronological Age, CA ',
+              textWarningCA ? 'red' : 'black'
             )}
             {displayListItem(
               formatTextDay(PCA),
               'clock',
-              'Post Conceptional Age, PCA '
+              'Post Conceptional Age, PCA ',
+              'black'
             )}
-            {displayListItem(formatTextDay(AJ), 'time', 'Adjusted Age, AJ')}
+            {displayListItem(
+              formatTextDay(AJ),
+              'time',
+              'Adjusted Age, AJ',
+              textWarningAJ ? 'red' : 'black'
+            )}
           </List>
         </Segment>
+        <p style={{ textAlign: 'right', fontSize: '12px', color: 'gray' }}>
+          {' '}
+          V1.1
+        </p>
       </Container>
     </>
   );
