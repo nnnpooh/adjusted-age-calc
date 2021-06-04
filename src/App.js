@@ -131,7 +131,7 @@ function App() {
   }); */
   return (
     <>
-      <Menu fixed='top' inverted color={'purple'} widths={1}>
+      <Menu fixed='top' inverted widths={1} className="tw-bg-purple-700">
         <Container>
           <Menu.Item>Adjusted Age Calculation</Menu.Item>
         </Container>
